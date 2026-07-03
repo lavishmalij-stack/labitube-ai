@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labitube AI</title>
+    <!-- Tailwind CSS for high-end styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#1a1b1e] text-gray-200 min-h-screen flex flex-col overflow-hidden">
+
+    <!-- SCREEN 1: MINIMALIST AUTHENTICATION COVER -->
+    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#111214] px-4">
+        <div class="bg-[#222327] border border-gray-800 w-full max-w-md p-6 rounded-2xl shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-xl mx-auto flex items-center justify-center shadow-lg font-bold text-xl text-white">L</div>
+                <h2 id="auth-title" class="text-2xl font-bold mt-4 text-white">Welcome back</h2>
+                <p class="text-gray-400 text-sm mt-1">Sign in to continue to Labitube AI</p>
+            </div>
+            
+            <form onsubmit="handleAuth(e)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Email Address</label>
+                        <input type="email" placeholder="you@example.com" required class="w-full bg-[#1a1b1e] border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Password</label>
+                        <input type="password" placeholder="••••••••" required class="w-full bg-[#1a1b1e] border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors">
+                    </div>
+                </div>
+
+                <button type="submit" id="auth-btn" class="w-full mt-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium py-3 rounded-xl hover:opacity-90 active:scale-[0.99] transition-all text-sm shadow-lg shadow-indigo-500/10">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="text-center mt-6 text-xs text-gray-400" id="auth-toggle-text">
+                New here? <span class="text-blue-400 cursor-pointer hover:underline font-medium" onclick="toggleAuthMode()">Create an account</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: MAIN APPLICATION INTERFACE -->
+    <div id="app-screen" class="hidden flex flex-1 h-screen relative overflow-hidden">
+        
+        <!-- SIDEBAR (Collapsible mobile panel) -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-[#111214] border-r border-gray-900 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+            <div class="p-4 border-b border-gray-900 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center font-bold text-xs text-white">L</div>
+                    <span class="font-bold text-white text-md tracking-wide">Labitube AI</span>
+                </div>
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Sidebar Navigation Content -->
+            <div class="flex-1 overflow-y-auto p-3 space-y-2">
+                <button class="w-full flex items-center gap-3 bg-[#222327] hover:bg-[#2a2b30] p-3 rounded-xl text-xs font-medium text-white transition-colors border border-gray-800/50">
+                    <span>＋</span> New Session
+                </button>
+                <div class="pt-4">
+                    <p class="text-[10px] uppercase tracking-widest font-bold text-gray-500 px-3 mb-2">History</p>
+                    <div class="text-xs text-gray-400 space-y-1">
+                        <div class="p-2.5 rounded-lg hover:bg-[#1a1b1e] cursor-pointer truncate">✨ Video Strategy Planner</div>
+                        <div class="p-2.5 rounded-lg hover:bg-[#1a1b1e] cursor-pointer truncate">💻 Code Optimization Helper</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile & Account Tier Anchor -->
+            <div class="p-4 border-t border-gray-900 bg-[#151619] flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-indigo-600/30 border border-indigo-500/30 flex items-center justify-center font-bold text-indigo-400">LM</div>
+                    <div>
+                        <p class="font-medium text-gray-300">Account</p>
+                        <p class="text-[10px] text-gray-500">Tier: Basic</p>
+                    </div>
+                </div>
+                <span class="text-[10px] bg-[#222327] text-indigo-400 px-2 py-1 rounded font-semibold border border-gray-800">20₹ - 200₹</span>
+            </div>
+        </aside>
+
+        <!-- CHAT CONVERSATION WINDOW -->
+        <main class="flex-1 flex flex-col md:ml-64 bg-[#1a1b1e]">
+            
+            <!-- Mobile Sticky Navigation Header -->
+            <header class="md:hidden bg-[#111214] border-b border-gray-900 p-4 flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="text-gray-400 p-1 hover:text-white">
+                    ☰
+                </button>
+                <span class="font-bold text-sm tracking-wide text-white">Labitube AI</span>
+            </header>
+
+            <!-- Chat Message Streams -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
+                <!-- Initial content will step in here via JavaScript -->
+            </div>
+
+            <!-- Global Action Input Area -->
+            <footer class="p-4 bg-[#1a1b1e] border-t border-gray-900/50">
+                <form id="chat-form" onsubmit="sendMessage(event)" class="max-w-3xl mx-auto relative flex items-center">
+                    <input id="chat-input" type="text" placeholder="Message Labitube AI..." required class="w-full bg-[#222327] border border-gray-800 rounded-xl pl-4 pr-12 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors shadow-inner">
+                    <button type="submit" class="absolute right-2 p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors text-xs font-bold">
+                        ➔
+                    </button>
+                </form>
+                <p class="text-[10px] text-center text-gray-600 mt-2">Powered by Labitube Infrastructure</p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- CORE INTERACTION LOGIC -->
+    <script>
+        const authScreen = document.getElementById('auth-screen');
+        const appScreen = document.getElementById('app-screen');
+        const authToggleText = document.getElementById('auth-toggle-text');
+        const authBtn = document.getElementById('auth-btn');
+        const authTitle = document.getElementById('auth-title');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+
+        let isSignUp = false;
+
+        function toggleAuthMode() {
+            isSignUp = !isSignUp;
+            authTitle.innerText = isSignUp ? 'Create your account' : 'Welcome back';
+            authBtn.innerText = isSignUp ? 'Sign Up' : 'Sign In';
+            authToggleText.innerHTML = isSignUp 
+                ? `Already have an account? <span class="text-blue-400 font-medium cursor-pointer hover:underline" onclick="toggleAuthMode()">Sign In</span>`
+                : `New here? <span class="text-blue-400 font-medium cursor-pointer hover:underline" onclick="toggleAuthMode()">Create an account</span>`;
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            authScreen.classList.add('hidden');
+            appScreen.classList.remove('hidden');
+            initializeChat();
+        }
+
+        // Attach submission directly to document context form 
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleAuth(e);
+        });
+
+        // Setup the initial message session rule
+        function initializeChat() {
+            chatMessages.innerHTML = `
+                <div class="flex items-start gap-3 p-4 bg-[#222327] rounded-xl border border-gray-800/80 max-w-2xl mx-auto shadow-md">
+                    <div class="w-7 h-7 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center font-bold text-xs text-white shrink-0">AI</div>
+                    <div>
+                        <p class="text-xs font-bold text-indigo-400 mb-0.5">Labitube AI</p>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Hello! Welcome to <strong>Labitube AI</strong>, made by <strong>Lavish malik</strong>. How can I assist you with your projects today?
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function sendMessage(e) {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+            
+            // Render User Prompt
+            chatMessages.innerHTML += `
+                <div class="flex items-start gap-3 p-4 max-w-2xl mx-auto justify-end">
+                    <div class="bg-indigo-600 text-white p-3 rounded-xl text-xs max-w-md shadow-md rounded-tr-none">
+                        ${text}
+                    </div>
+                </div>
+            `;
+            
+            chatInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Subsequent responses bypass developer credit layout completely
+            setTimeout(() => {
+                chatMessages.innerHTML += `
+                    <div class="flex items-start gap-3 p-4 bg-[#222327]/40 rounded-xl max-w-2xl mx-auto border border-gray-900/30">
+                        <div class="w-7 h-7 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center font-bold text-xs text-white shrink-0">AI</div>
+                        <div>
+                            <p class="text-xs font-bold text-indigo-400 mb-0.5">Labitube AI</p>
+                            <p class="text-xs text-gray-300 leading-relaxed">
+                                I am processing your instruction. Connect this handler to your cloud API endpoint or Firebase Functions instance to run real context inference pipelines.
+                            </p>
+                        </div>
+                    </div>
+                `;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 700);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+    </script>
+</body>
+</html>
